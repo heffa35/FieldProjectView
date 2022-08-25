@@ -24,7 +24,7 @@ from pandas.tseries.offsets import CustomBusinessDay
 st.set_page_config(layout="wide")
 Efficiant_Hours_Per_Day = 4.5
 
-@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def get_manager():
     return stx.CookieManager()
 
