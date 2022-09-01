@@ -21,7 +21,7 @@ if option=='Projects':
     tablename = 'tbl_Projects'
     data = get_data(tablename)
     rigname = get_data('tbl_Rigs') 
-    
+    actions = get_data('tbl_Actions')
     gb = GridOptionsBuilder.from_dataframe(data)
     gb.configure_column('KO_Date', header_name=("KO_Date"), editable= True)
     gb.configure_column('Tracker_No', header_name=("Tracker_No"), editable= True)
