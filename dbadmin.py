@@ -52,6 +52,12 @@ if option=='Projects':
             data.to_sql(tablename, conn, if_exists='replace', index=False)
             st.legacy_caching.clear_cache()
             st.experimental_rerun()
+
+    if st.button("Save changes to database"):
+
+        st.legacy_caching.clear_cache()
+        st.experimental_rerun()
+
 elif option == 'Resources':
 
     tablename = 'tbl_Resources'
@@ -265,9 +271,5 @@ else:
     theme='streamlit',
     data_return_mode=DataReturnMode.AS_INPUT,
     update_mode=GridUpdateMode.MODEL_CHANGED)
-if st.button("Save changes to database"):
-    data=dta['data']
-    data.to_sql(tablename, conn, if_exists='replace', index=False)
-    st.legacy_caching.clear_cache()
-    st.experimental_rerun()
+
     
