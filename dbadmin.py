@@ -44,6 +44,7 @@ if option=='Projects':
         Rigname=st.selectbox("Rigname",rigname.iloc[:,1])
         SO_Description=st.text_input("Description")
         Received_date=st.date_input("Received Date")
+	#KO_promised_date=st.date_input("KO Promised date")
         button_check = st.form_submit_button("Add to list")
         if button_check:
             data_to_df={'Tracker_No':Tracker_no,'Rigname':Rigname,'SO_Description':SO_Description,'Received_Date':Received_date, 'KO_Promised_Date':'2099-12-31'}
