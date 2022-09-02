@@ -59,16 +59,21 @@ if option=='Projects':
         st.experimental_rerun()
 
 elif option == 'Resources':
+    def update(tablename, id, lastname):
+        c.execute('UPDATE tbl_Resources SET Last_Name=? WHERE Resource_ID=?', (lastname, id))
+        conn.commit()
 
     tablename = 'tbl_Resources'
     data = get_data(tablename)
     
     gb = GridOptionsBuilder.from_dataframe(data)
+
     gb.configure_column('Terminated', header_name=("Terminated"), editable= True, filter=("TRUE"))
     gb.configure_column('Producer', header_name=("Producer"), editable= True)
     gb.configure_column('Last_Name', header_name=("Last_Name"), editable= True)
     gb.configure_column('First_Name', header_name=("First_Name"), editable= True)
     gb.configure_columns(['Resource_Email', 'Discipline_ID', 'Manager_ID', 'Location_ID'], hide=True)
+    gb.configure_selection(use_checkbox=True)
     gridOptions = gb.build()
     dta = AgGrid(data,
     gridOptions=gridOptions,
@@ -78,7 +83,18 @@ elif option == 'Resources':
     editable=True,
     theme='streamlit',
     data_return_mode=DataReturnMode.AS_INPUT,
-    update_mode=GridUpdateMode.MODEL_CHANGED)
+    update_mode=GridUpdateMode.VALUE_CHANGED)
+
+    sel_row = dta["selected_rows"]
+    df_selected = pd.DataFrame(sel_row)
+
+    if st.button('Update db', key=1):
+        for i, r in df_selected.iterrows():
+            id = r['Resource_ID']
+            lastname = r['Last_Name']
+            update(tablename, id, lastname)
+
+
 elif option=='Actions':
     tablename = 'tbl_Actions'
     data = get_data(tablename)
