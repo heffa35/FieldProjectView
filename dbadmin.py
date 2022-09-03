@@ -261,6 +261,8 @@ elif option=='Managers':
     data = get_data(tablename)
 
     gb = GridOptionsBuilder.from_dataframe(data)
+
+
     gridOptions = gb.build()
     dta = AgGrid(data,
     gridOptions=gridOptions,
@@ -272,20 +274,36 @@ elif option=='Managers':
     data_return_mode=DataReturnMode.AS_INPUT,
     update_mode=GridUpdateMode.MODEL_CHANGED)
 else:
+
+    def update(tablename, Rig_Number, Rig_Name):
+        c.execute('UPDATE tbl_Rigs SET Rig_Name=? WHERE Rig_Number=?', (Rig_Name, Rig_Number))
+        conn.commit()
+
     option=='Rigs'
     tablename = 'tbl_Rigs'
     data = get_data(tablename)
 
     gb = GridOptionsBuilder.from_dataframe(data)
+    gb.configure_columns(['Rig_ID'], hide=True)
+    gb.configure_column('Rig_Number', header_name=("Rno"), editable=False, filter=("TRUE"))
+    gb.configure_column('Rig_Name', header_name=("RigName"), editable=True, filter=("TRUE"))
+    gb.configure_selection(use_checkbox=True)
     gridOptions = gb.build()
     dta = AgGrid(data,
     gridOptions=gridOptions,
-    width='100%',
+    width='50%',
     reload_data=False,
-    height=800,
+    height=600,
     editable=True,
     theme='streamlit',
     data_return_mode=DataReturnMode.AS_INPUT,
-    update_mode=GridUpdateMode.MODEL_CHANGED)
+    update_mode=GridUpdateMode.VALUE_CHANGED)
 
-    
+    sel_row = dta["selected_rows"]
+    df_selected = pd.DataFrame(sel_row)
+
+    if st.button('Update db', key=1):
+        for i, r in df_selected.iterrows():
+            Rig_Number = r['Rig_Number']
+            Rig_Name = r['Rig_Name']
+            update(tablename, Rig_Number, Rig_Name)
