@@ -33,7 +33,7 @@ if option=='Projects':
     gridOptions=gridOptions,
     width='100%',
     reload_data=False,
-    height=800,
+    height=500,
     editable=True,
     theme='streamlit',
     data_return_mode=DataReturnMode.AS_INPUT,
