@@ -18,16 +18,24 @@ def get_data(tablename):
 option = st.sidebar.radio("What to show",('Projects', 'Resources', 'Actions','Companies','Customer Contact','Customers','Disciplines','Functions','Locations','Managers','Resources Hours','Rigs'))
 
 if option=='Projects':
+
+#Sales_Prospect_No, Tracker_No,Rigname,SO_Description,Received_Date,Registered_Date,Owner_Operator,Customer,Customer_Contact,Sales_Representative,Action,PO_Date,KO_IC,KO_Date,KO_Date,KO_Aprox_Hours,KO_PO_Date,KO_Promised_Date,Estimated_Hours,Comments,IC,Q_Amount,Closed,Holiday,Fixed_Dates
+    def update(Tracker_No,KO_Date,KO_Promised_Date):
+        c.execute('UPDATE tbl_Projects SET KO_Date=?, KO_Promised_Date=? WHERE Tracker_No=?', (KO_Date, KO_Promised_Date,Tracker_No))
+        conn.commit()
+
     tablename = 'tbl_Projects'
     data = get_data(tablename)
     rigname = get_data('tbl_Rigs') 
     actions = get_data('tbl_Actions')
     gb = GridOptionsBuilder.from_dataframe(data)
+    gb.configure_selection(use_checkbox=True)
     gb.configure_column('KO_Date', header_name=("KO_Date"), editable= True)
-    gb.configure_column('Tracker_No', header_name=("Tracker_No"), editable= True)
+    #gb.configure_column('Tracker_No', header_name=("Tracker_No"), editable= True)
     gb.configure_column('KO_Promised_Date', header_name=("KO_Promised_Date"), editable= True)
-    gb.configure_columns(['Sales_Prospect_No','Comments','Q_Amount','PO_Amount','Closed'], hide=True)
+    gb.configure_columns(['Sales_Prospect_No','Comments','Q_Amount','PO_Amount','Closed','Owner_Operator','Customer','Customer_Contact','Registered_Date'], hide=True)
     gb.configure_pagination(enabled=True, paginationAutoPageSize=True, paginationPageSize=20)
+
     gridOptions = gb.build()
     dta = AgGrid(data,
     gridOptions=gridOptions,
@@ -37,8 +45,19 @@ if option=='Projects':
     editable=True,
     theme='streamlit',
     data_return_mode=DataReturnMode.AS_INPUT,
-    update_mode=GridUpdateMode.MODEL_CHANGED)
-    
+    update_mode=GridUpdateMode.VALUE_CHANGED)
+
+    if st.button('Update db', key=1):
+        for i, r in df_selected.iterrows():
+            Tracker_No = r['Tracker_No']
+            KO_Date = r['KO_Date']
+            KO_Promised_Date = r['KO_Promised_Date']
+            update(Tracker_No,KO_Date,KO_Promised_Date)
+
+        st.legacy_caching.clear_cache()
+        st.experimental_rerun()
+
+
     with st.form("New Project", clear_on_submit=True):
         Tracker_no=st.text_input("Tracker No")
         Rigname=st.selectbox("Rigname",rigname.iloc[:,1])
@@ -53,10 +72,9 @@ if option=='Projects':
             st.legacy_caching.clear_cache()
             st.experimental_rerun()
 
-    if st.button("Save changes to database"):
+    sel_row = dta["selected_rows"]
+    df_selected = pd.DataFrame(sel_row)
 
-        st.legacy_caching.clear_cache()
-        st.experimental_rerun()
 
 elif option == 'Resources':
     def update(tablename, id, lastname):
