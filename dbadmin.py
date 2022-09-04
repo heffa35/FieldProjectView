@@ -18,8 +18,8 @@ def get_data(tablename):
 option = st.sidebar.radio("What to show",('Projects', 'Resources', 'Actions','Companies','Customer Contact','Customers','Disciplines','Functions','Locations','Managers','Resources Hours','Rigs'))
 
 if option=='Projects':
-
-#Sales_Prospect_No, Tracker_No,Rigname,SO_Description,Received_Date,Registered_Date,Owner_Operator,Customer,Customer_Contact,Sales_Representative,Action,PO_Date,KO_IC,KO_Date,KO_Date,KO_Aprox_Hours,KO_PO_Date,KO_Promised_Date,Estimated_Hours,Comments,IC,Q_Amount,Closed,Holiday,Fixed_Dates
+    st.warning('The available edit columns, are KO Date and Promised Date, Important format: YYYY-MM-DD')
+#Sales_Prospect_No, Tracker_No,Rigname,SO_Description,Received_Date,Registered_Date,Owner_Operator,Customer,Customer_Contact,Sales_Representative,Action,PO_Date,KO_IC,KO_Date,KO_Aprox_Hours,KO_PO_Date,KO_Promised_Date,Estimated_Hours,Comments,IC,Q_Amount,Closed,Holiday,Fixed_Dates
     def update(Tracker_No,KO_Date,KO_Promised_Date):
         c.execute('UPDATE tbl_Projects SET KO_Date=?, KO_Promised_Date=? WHERE Tracker_No=?', (KO_Date, KO_Promised_Date,Tracker_No))
         conn.commit()
@@ -29,13 +29,13 @@ if option=='Projects':
     rigname = get_data('tbl_Rigs') 
     actions = get_data('tbl_Actions')
     gb = GridOptionsBuilder.from_dataframe(data)
-    gb.configure_selection(use_checkbox=True)
+
     gb.configure_column('KO_Date', header_name=("KO_Date"), editable= True)
     #gb.configure_column('Tracker_No', header_name=("Tracker_No"), editable= True)
     gb.configure_column('KO_Promised_Date', header_name=("KO_Promised_Date"), editable= True)
-    gb.configure_columns(['Sales_Prospect_No','Comments','Q_Amount','PO_Amount','Closed','Owner_Operator','Customer','Customer_Contact','Registered_Date'], hide=True)
+    gb.configure_columns(['Sales_Prospect_No','Comments','Q_Amount','PO_Amount','Closed','Owner_Operator','Customer','Customer_Contact','Registered_Date','KO_IC','KO_Aprox_Hours','KO_PO_Date','Estimated_Hours','Comments','IC','Q_Amount','Closed'], hide=True)
     gb.configure_pagination(enabled=True, paginationAutoPageSize=True, paginationPageSize=20)
-
+    gb.configure_selection(use_checkbox=True)
     gridOptions = gb.build()
     dta = AgGrid(data,
     gridOptions=gridOptions,
@@ -48,14 +48,10 @@ if option=='Projects':
     update_mode=GridUpdateMode.VALUE_CHANGED)
 
     if st.button('Update db', key=1):
-        for i, r in df_selected.iterrows():
-            Tracker_No = r['Tracker_No']
-            KO_Date = r['KO_Date']
-            KO_Promised_Date = r['KO_Promised_Date']
-            update(Tracker_No,KO_Date,KO_Promised_Date)
-
-        st.legacy_caching.clear_cache()
-        st.experimental_rerun()
+       data = dta['data']
+       data.to_sql('tbl_Projects', conn, if_exists='replace', index = False)
+       st.legacy_caching.clear_cache()
+       st.experimental_rerun()
 
 
     with st.form("New Project", clear_on_submit=True):
